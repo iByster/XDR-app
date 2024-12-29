@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Event } from '../sensors/events/event.entity'; // Path to your Event entity
+import { Event } from '../events/event.entity'; // Path to your Event entity
 
 @Module({
   imports: [

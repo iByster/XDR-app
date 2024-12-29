@@ -6,6 +6,7 @@ import { AppConfigModule } from './config/config.module';
 import { HttpModule } from '@nestjs/axios';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SensorsModule } from './sensors/sensor.module';
+import { DetectionModule } from './detections/detections.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SensorsModule } from './sensors/sensor.module';
     HttpModule,
     ScheduleModule.forRoot(),
     SensorsModule,
+    DetectionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

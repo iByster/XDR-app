@@ -15,7 +15,7 @@ const SENSOR_COOLDOWN = new Date(Date.now() - 2 * 60 * 60 * 1000); // 2 hours in
 @Injectable()
 export class SensorsService {
   constructor(
-    @InjectRepository(Sensor, 'sensorConnection')
+    @InjectRepository(Sensor, 'mainConnection')
     private readonly sensorRepository: Repository<Sensor>,
     private readonly sensorContext: SensorContext,
   ) {}

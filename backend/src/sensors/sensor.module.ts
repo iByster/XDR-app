@@ -10,7 +10,7 @@ import { HttpModule } from '@nestjs/axios';
 import { SensorOrchestratorService } from './orchestrator/sensor-orchestrator.service';
 import { OrchestratorScheduler } from './cron/OrchestratorScheduler';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import { EventsModule } from './events/event.module';
+import { EventsModule } from '../events/event.module';
 import { SensorDbModule } from 'src/db/main-db.module';
 
 @Module({
@@ -19,10 +19,7 @@ import { SensorDbModule } from 'src/db/main-db.module';
     SensorDbModule,
     HttpModule,
     RabbitMQModule.forRoot(RabbitMQModule, {
-      exchanges: [
-        { name: 'events-exchange', type: 'topic' },
-        { name: 'alerts-exchange', type: 'topic' },
-      ],
+      exchanges: [{ name: 'events-exchange', type: 'topic' }],
       uri: 'amqp://localhost',
     }),
     EventsModule,
