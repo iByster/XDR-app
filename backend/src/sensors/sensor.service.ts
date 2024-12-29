@@ -88,6 +88,7 @@ export class SensorsService {
     const availableSensors = await this.sensorRepository.find({
       where: {
         isRunning: false,
+        enabled: true,
         // lastExecutionTime: LessThanOrEqual(SENSOR_COOLDOWN),
       },
       order: { lastExecutionTime: 'ASC' },

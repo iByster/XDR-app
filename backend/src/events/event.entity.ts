@@ -10,6 +10,11 @@ export enum EventStatus {
   FAILED = 'FAILED',
 }
 
+export enum EventTypes {
+  EmailContent = 'EmailContent',
+  EmailAttachments = 'EmailAttachments',
+}
+
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn()
@@ -26,6 +31,12 @@ export class Event {
 
   @Column({ type: 'json' })
   data: any; // Can store either the sensor output or the error message
+
+  @Column({
+    type: 'enum',
+    enum: EventStatus,
+  })
+  type: any;
 
   @CreateDateColumn()
   timestamp: Date;

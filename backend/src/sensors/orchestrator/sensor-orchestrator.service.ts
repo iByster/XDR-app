@@ -53,16 +53,22 @@ export class SensorOrchestratorService {
 
       const sensorPromise = this.sensorsService.triggerSensor(sensor.id);
 
-      const sensorOutput = await Promise.race([sensorPromise, timeoutPromise]);
+      const events = await Promise.race([sensorPromise, timeoutPromise]);
 
       this.logger.log(
-        `Sensor completed for configuration ID ${sensor.id}: ${JSON.stringify(sensorOutput)}`,
+        `Sensor completed for configuration ID ${sensor.id}: ${JSON.stringify(events)}`,
       );
 
-      await this.amqpConnection.publish('events-exchange', 'sensor.completed', {
-        sensorId: sensor.id,
-        output: sensorOutput,
-      });
+      // for (const event of events) {
+      //   await this.amqpConnection.publish(
+      //     'events-exchange',
+      //     'sensor.completed',
+      //     {
+      //       sensorId: sensor.id,
+      //       output: event,
+      //     },
+      //   );
+      // }
     } catch (error) {
       this.logger.error(
         `Sensor failed for configuration ID ${sensor.id}: ${error.message}`,

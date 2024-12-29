@@ -48,14 +48,18 @@ export class EventHandlerService {
   })
   async handleSensorCompleted(msg: any) {
     this.logger.log(`Received completed event: ${JSON.stringify(msg)}`);
-    const { sensorId, output } = msg;
+    const {
+      sensorId,
+      output: { type, data },
+    } = msg;
 
     try {
       // Save the event to the Events DB
       const event = this.eventRepository.create({
         sensorId,
+        type,
         status: EventStatus.COMPLETED,
-        data: output,
+        data,
         timestamp: new Date(),
       });
       await this.eventRepository.save(event);
@@ -64,9 +68,7 @@ export class EventHandlerService {
 
       // Publish alert to alerts-exchange
       await this.amqpConnection.publish('alerts-exchange', 'event.alert', {
-        sensorId,
         eventId: event.id,
-        data: output,
       });
 
       this.logger.log(`Alert published for sensorId: ${sensorId}`);

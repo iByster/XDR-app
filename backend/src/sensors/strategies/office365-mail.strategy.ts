@@ -3,6 +3,7 @@ import { SensorStrategy } from './sensor-strategy.interface';
 import { HttpService } from '@nestjs/axios';
 import { MicrosoftAuthService } from '../../auth/microsoft-auth.service';
 import { firstValueFrom } from 'rxjs';
+import { EventTypes } from 'src/events/event.entity';
 
 @Injectable()
 export class Office365MailStrategy implements SensorStrategy {
@@ -30,58 +31,72 @@ export class Office365MailStrategy implements SensorStrategy {
     }
   }
 
-  // Fetch emails for multiple users in a batch request
-  private async fetchEmailsInBatch(
+  // Fetch emails and attachments for a single user
+  private async fetchEmailsWithAttachments(
     accessToken: string,
-    userEmails: string[],
+    userId: string,
   ): Promise<any[]> {
-    const batchUrl = 'https://graph.microsoft.com/v1.0/$batch';
-
-    // Prepare requests for each user’s messages
-    const requests = userEmails.map((email, index) => ({
-      id: `${index + 1}`,
-      method: 'GET',
-      url: `/users/${email}/messages?$top=10`, // Adjust query parameters as needed
-    }));
-
+    console.log(accessToken);
+    const url = `https://graph.microsoft.com/v1.0/users/${userId}/messages?$top=10`;
     try {
       const response = await firstValueFrom(
-        this.httpService.post(
-          batchUrl,
-          { requests },
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
-        ),
+        this.httpService.get(url, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }),
       );
-
-      // Map responses to each user's emails
-      return response.data.responses.map((res: any) => res.body.value);
+      return response.data.value;
     } catch (error) {
-      console.error(
-        'Error fetching emails in batch from Microsoft Graph',
-        error.message,
-      );
-      throw new Error('Unable to fetch emails in batch from Microsoft Graph');
+      console.error('Error fetching emails for user:', error.message);
+      throw new Error(`Unable to fetch emails for user: ${userId}`);
     }
   }
 
-  // Main processing method that fetches emails for all users
-  async process(config: any): Promise<any> {
-    // Use custom auth config if provided in the sensor config
+  // Process sensor to fetch and organize email events
+  async process(config: any): Promise<any[]> {
     if (config.auth) {
       this.microsoftAuthService.setCustomConfig(config.auth);
     }
 
     const accessToken = await this.microsoftAuthService.getAccessToken();
-    // Step 1: Fetch all users
     const users = await this.fetchAllUsers(accessToken);
-    const userEmails = users.map((user) => user.userPrincipalName); // Get user emails from users list
 
-    // Step 2: Batch fetch emails for all users
-    const emails = await this.fetchEmailsInBatch(accessToken, userEmails);
-    return emails;
+    console.log(users);
+
+    const events: any[] = [];
+    for (const user of users) {
+      try {
+        const emailEvents = await this.fetchEmailsWithAttachments(
+          accessToken,
+          user.id,
+        );
+
+        // Separate logical data (emails and attachments)
+        emailEvents.forEach((email: any) => {
+          events.push({
+            type: EventTypes.EmailContent,
+            data: {
+              subject: email.subject,
+              sender: email.from,
+              body: email.bodyPreview,
+            },
+          });
+
+          if (email.attachments?.length) {
+            email.attachments.forEach((attachment: any) => {
+              events.push({
+                type: EventTypes.EmailAttachments,
+                data: {
+                  fileName: attachment.name,
+                  contentType: attachment.contentType,
+                  size: attachment.size,
+                },
+              });
+            });
+          }
+        });
+      } catch (err) {}
+    }
+
+    return events;
   }
 }

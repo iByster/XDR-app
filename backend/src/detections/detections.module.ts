@@ -4,7 +4,8 @@ import { EventsModule } from 'src/events/event.module';
 import { IncidentsModule } from 'src/incident/incident.module';
 import { DetectionService } from './detections.service';
 import { DetectionStrategyFactory } from './detection-strategy.factory';
-import { EmailDetectionStrategy } from './strategies/email-detection.strategy';
+import { EmailContentDetectionStrategy } from './strategies/email-content-detection.strategy';
+import { AttachmentDetectionStrategy } from './strategies/attachments-detection.strategy';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { EmailDetectionStrategy } from './strategies/email-detection.strategy';
   providers: [
     DetectionService,
     DetectionStrategyFactory,
-    EmailDetectionStrategy,
+    EmailContentDetectionStrategy,
+    AttachmentDetectionStrategy,
   ],
   exports: [],
 })
