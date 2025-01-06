@@ -7,12 +7,12 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 @Injectable()
 export class SensorOrchestratorService {
   private readonly logger = new Logger(SensorOrchestratorService.name);
-  private readonly maxConcurrentSensors = 5; // Limit concurrent sensors
-  private activeSensors: Set<number> = new Set(); // Track running sensor IDs
+  private readonly maxConcurrentSensors = 5;
+  private activeSensors: Set<number> = new Set();
 
   constructor(
-    private readonly sensorsService: SensorsService, // Use this to trigger sensors
-    private readonly amqpConnection: AmqpConnection, // RabbitMQ connection
+    private readonly sensorsService: SensorsService,
+    private readonly amqpConnection: AmqpConnection,
   ) {}
 
   async run(): Promise<void> {
@@ -59,16 +59,16 @@ export class SensorOrchestratorService {
         `Sensor completed for configuration ID ${sensor.id}: ${JSON.stringify(events)}`,
       );
 
-      // for (const event of events) {
-      //   await this.amqpConnection.publish(
-      //     'events-exchange',
-      //     'sensor.completed',
-      //     {
-      //       sensorId: sensor.id,
-      //       output: event,
-      //     },
-      //   );
-      // }
+      for (const event of events) {
+        await this.amqpConnection.publish(
+          'events-exchange',
+          'sensor.completed',
+          {
+            sensorId: sensor.id,
+            output: event,
+          },
+        );
+      }
     } catch (error) {
       this.logger.error(
         `Sensor failed for configuration ID ${sensor.id}: ${error.message}`,

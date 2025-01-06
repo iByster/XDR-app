@@ -11,7 +11,6 @@ import { DetectionModule } from './detections/detections.module';
 @Module({
   imports: [
     AppConfigModule,
-    // DatabaseModule,
     HttpModule,
     ScheduleModule.forRoot(),
     SensorsModule,

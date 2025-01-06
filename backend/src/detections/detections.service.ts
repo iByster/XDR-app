@@ -25,31 +25,36 @@ export class DetectionService {
 
     const { eventId, eventType } = msg;
 
-    // Retrieve event details from Events Module
-    const event = await this.eventsService.getEventById(eventId);
+    try {
+      // Retrieve event details from Events Module
+      const event = await this.eventsService.getEventById(eventId);
 
-    if (!event) {
-      this.logger.error(`Event with ID ${eventId} not found.`);
-      return;
-    }
+      if (!event) {
+        this.logger.error(`Event with ID ${eventId} not found.`);
+        return;
+      }
 
-    // Dynamically resolve detection strategy based on eventType
-    const strategy = this.detectionStrategyFactory.getStrategy(eventType);
+      // Dynamically resolve detection strategy based on eventType
+      const strategy = this.detectionStrategyFactory.getStrategy(event.type);
 
-    if (!strategy) {
-      this.logger.warn(
-        `No detection strategy found for eventType: ${eventType}`,
-      );
-      return;
-    }
+      if (!strategy) {
+        this.logger.warn(
+          `No detection strategy found for eventType: ${eventType}`,
+        );
+        return;
+      }
 
-    // Execute detection strategy
-    const incident = await strategy.detect(event);
+      // Execute detection strategy
+      const incident = await strategy.detect(event);
 
-    // Save the generated incident to Incidents Module
-    if (incident) {
-      await this.incidentsService.createIncident(incident);
-      this.logger.log(`Incident created for event ID ${eventId}`);
+      // Save the generated incident to Incidents Module
+      if (incident) {
+        await this.incidentsService.createIncident(incident);
+        this.logger.log(`Incident created for event ID ${eventId}`);
+      }
+    } catch (error) {
+      // Log and handle the error to prevent RabbitMQ from retrying the message
+      this.logger.error(`Error handling alert: ${error.message}`);
     }
   }
 }

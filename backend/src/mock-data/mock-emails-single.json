@@ -1,0 +1,34 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users('mockuser@outlook.com')/messages",
+  "value": [
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "2",
+      "createdDateTime": "2025-01-04T13:00:00Z",
+      "lastModifiedDateTime": "2025-01-04T13:01:00Z",
+      "subject": "Phishing Attempt - Password Reset Required",
+      "bodyPreview": "Your account has been compromised. Click here to reset your password.",
+      "importance": "high",
+      "isRead": false,
+      "hasAttachments": false,
+      "from": {
+        "emailAddress": {
+          "name": "Security Team",
+          "address": "security@fake-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>Your account has been compromised. <a href='http://malicious-site.com'>Click here</a> to reset your password.</body></html>"
+      }
+    }
+  ]
+}

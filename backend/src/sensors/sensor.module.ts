@@ -12,6 +12,8 @@ import { OrchestratorScheduler } from './cron/OrchestratorScheduler';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { EventsModule } from '../events/event.module';
 import { SensorDbModule } from 'src/db/main-db.module';
+import { MeOffice365MeMailStrategy } from './strategies/me-office365-mail.strategy';
+import { MockOffice365MailStrategy } from './strategies/mock-office365-mail.strategy';
 
 @Module({
   imports: [
@@ -29,7 +31,9 @@ import { SensorDbModule } from 'src/db/main-db.module';
     SensorsService,
     SensorContext,
     Office365MailStrategy,
+    MeOffice365MeMailStrategy,
     MicrosoftAuthService,
+    MockOffice365MailStrategy,
     SensorOrchestratorService,
     OrchestratorScheduler,
   ],

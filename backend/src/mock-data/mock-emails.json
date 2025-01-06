@@ -1,0 +1,224 @@
+{
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#users('mockuser@outlook.com')/messages",
+  "value": [
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "1",
+      "createdDateTime": "2025-01-05T08:00:00Z",
+      "lastModifiedDateTime": "2025-01-05T08:01:00Z",
+      "subject": "Meeting Reminder",
+      "bodyPreview": "Don't forget the meeting scheduled for next week.",
+      "importance": "normal",
+      "isRead": true,
+      "hasAttachments": false,
+      "from": {
+        "emailAddress": {
+          "name": "John Doe",
+          "address": "johndoe@trusted-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>Don't forget the meeting scheduled for next week.</body></html>"
+      }
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "2",
+      "createdDateTime": "2025-01-04T13:00:00Z",
+      "lastModifiedDateTime": "2025-01-04T13:01:00Z",
+      "subject": "Phishing Attempt - Password Reset Required",
+      "bodyPreview": "Your account has been compromised. Click here to reset your password.",
+      "importance": "high",
+      "isRead": false,
+      "hasAttachments": false,
+      "from": {
+        "emailAddress": {
+          "name": "Security Team",
+          "address": "security@fake-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>Your account has been compromised. <a href='http://malicious-site.com'>Click here</a> to reset your password.</body></html>"
+      }
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "3",
+      "createdDateTime": "2025-01-04T15:00:00Z",
+      "lastModifiedDateTime": "2025-01-04T15:01:00Z",
+      "subject": "Invoice Attached - Urgent",
+      "bodyPreview": "Please review the attached invoice.",
+      "importance": "normal",
+      "isRead": false,
+      "hasAttachments": true,
+      "from": {
+        "emailAddress": {
+          "name": "Finance Team",
+          "address": "finance@trusted-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>Please review the attached invoice.</body></html>"
+      },
+      "attachments": [
+        {
+          "@odata.type": "#microsoft.graph.fileAttachment",
+          "name": "Invoice.pdf",
+          "contentType": "application/pdf",
+          "size": 204800
+        }
+      ]
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "4",
+      "createdDateTime": "2025-01-03T09:00:00Z",
+      "lastModifiedDateTime": "2025-01-03T09:01:00Z",
+      "subject": "Suspicious Attachment",
+      "bodyPreview": "Attached is a script you requested.",
+      "importance": "high",
+      "isRead": false,
+      "hasAttachments": true,
+      "from": {
+        "emailAddress": {
+          "name": "Unknown Sender",
+          "address": "unknown@malicious-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>Attached is a script you requested.</body></html>"
+      },
+      "attachments": [
+        {
+          "@odata.type": "#microsoft.graph.fileAttachment",
+          "name": "MaliciousScript.bat",
+          "contentType": "application/x-bat",
+          "size": 5120
+        }
+      ]
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "5",
+      "createdDateTime": "2025-01-02T14:00:00Z",
+      "lastModifiedDateTime": "2025-01-02T14:01:00Z",
+      "subject": "Spam Email - Win a Free iPhone!",
+      "bodyPreview": "Congratulations! You have won a free iPhone. Click here to claim it.",
+      "importance": "low",
+      "isRead": false,
+      "hasAttachments": false,
+      "from": {
+        "emailAddress": {
+          "name": "Spam Bot",
+          "address": "spam@spammy-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>Congratulations! You have won a free iPhone. <a href='http://spammy-site.com'>Click here</a> to claim it.</body></html>"
+      }
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "6",
+      "createdDateTime": "2025-01-01T10:00:00Z",
+      "lastModifiedDateTime": "2025-01-01T10:01:00Z",
+      "subject": "Critical Security Alert",
+      "bodyPreview": "We have detected unusual activity on your account.",
+      "importance": "high",
+      "isRead": true,
+      "hasAttachments": false,
+      "from": {
+        "emailAddress": {
+          "name": "Security Team",
+          "address": "security@trusted-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>We have detected unusual activity on your account. Please verify your login details.</body></html>"
+      }
+    },
+    {
+      "@odata.etag": "W/\"CQAAABYAAA==\"",
+      "id": "7",
+      "createdDateTime": "2024-12-31T22:00:00Z",
+      "lastModifiedDateTime": "2024-12-31T22:01:00Z",
+      "subject": "Happy New Year!",
+      "bodyPreview": "Wishing you a Happy New Year from all of us.",
+      "importance": "normal",
+      "isRead": false,
+      "hasAttachments": false,
+      "from": {
+        "emailAddress": {
+          "name": "Company Team",
+          "address": "team@trusted-domain.com"
+        }
+      },
+      "toRecipients": [
+        {
+          "emailAddress": {
+            "name": "Alex Gane",
+            "address": "ganealex3@gmail.com"
+          }
+        }
+      ],
+      "body": {
+        "contentType": "html",
+        "content": "<html><body>Wishing you a Happy New Year from all of us.</body></html>"
+      }
+    }
+  ]
+}

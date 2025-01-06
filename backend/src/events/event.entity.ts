@@ -34,7 +34,7 @@ export class Event {
 
   @Column({
     type: 'enum',
-    enum: EventStatus,
+    enum: EventTypes,
   })
   type: any;
 

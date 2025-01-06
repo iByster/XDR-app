@@ -6,7 +6,7 @@ import { SensorOrchestratorService } from '../orchestrator/sensor-orchestrator.s
 export class OrchestratorScheduler {
   constructor(private readonly orchestrator: SensorOrchestratorService) {}
 
-  @Cron(CronExpression.EVERY_11_HOURS)
+  @Cron(CronExpression.EVERY_10_HOURS)
   async runOrchestration(): Promise<void> {
     await this.orchestrator.run();
   }

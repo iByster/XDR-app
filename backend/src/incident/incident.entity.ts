@@ -1,9 +1,11 @@
+// import { Recommendation } from 'src/recommendations/recommendation.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 export enum IncidentSeverity {
@@ -39,4 +41,7 @@ export class Incident {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // @OneToMany(() => Recommendation, (recommendation) => recommendation.incident)
+  // recommendations: Recommendation[];
 }

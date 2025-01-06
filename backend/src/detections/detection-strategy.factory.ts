@@ -17,8 +17,8 @@ export class DetectionStrategyFactory {
     this.strategies = new Map<string, DetectionStrategy>();
 
     // Register strategies with their event types
-    this.register(EventTypes.EmailAttachments, emailContentDetectionStrategy);
-    this.register(EventTypes.EmailContent, attachmentDetectionStrategy);
+    this.register(EventTypes.EmailAttachments, attachmentDetectionStrategy);
+    this.register(EventTypes.EmailContent, emailContentDetectionStrategy);
   }
 
   private register(eventType: string, strategy: DetectionStrategy): void {

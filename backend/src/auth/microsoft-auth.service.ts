@@ -1,8 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import * as qs from 'qs';
+import { ConfidentialClientApplication } from '@azure/msal-node';
 
 interface MicrosoftAuthConfig {
   clientId: string;
@@ -14,49 +12,54 @@ interface MicrosoftAuthConfig {
 @Injectable()
 export class MicrosoftAuthService {
   private config: MicrosoftAuthConfig;
+  private msalClient: ConfidentialClientApplication;
 
-  constructor(
-    private configService: ConfigService,
-    private httpService: HttpService,
-  ) {
+  constructor(private configService: ConfigService) {
     this.config = {
       clientId: this.configService.get<string>('MICROSOFT_CLIENT_ID'),
       clientSecret: this.configService.get<string>('MICROSOFT_CLIENT_SECRET'),
       tenantId: this.configService.get<string>('MICROSOFT_TENANT_ID'),
       scope: this.configService.get<string>('MICROSOFT_SCOPE'),
     };
+
+    // Initialize MSAL Confidential Client
+    this.msalClient = new ConfidentialClientApplication({
+      auth: {
+        clientId: this.config.clientId,
+        authority: `https://login.microsoftonline.com/${this.config.tenantId}`,
+        clientSecret: this.config.clientSecret,
+      },
+    });
   }
 
   setCustomConfig(customConfig: MicrosoftAuthConfig): void {
     this.config = customConfig;
+
+    // Update the MSAL Client with the new config
+    this.msalClient = new ConfidentialClientApplication({
+      auth: {
+        clientId: this.config.clientId,
+        authority: `https://login.microsoftonline.com/${this.config.tenantId}`,
+        clientSecret: this.config.clientSecret,
+      },
+    });
   }
 
+  // Method to get an access token using Client Credentials Flow
   async getAccessToken(): Promise<string> {
-    const { clientId, clientSecret, tenantId, scope } = this.config;
-
-    if (!clientId || !clientSecret || !tenantId || !scope) {
-      throw new HttpException(
-        'Missing Microsoft authentication configuration',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    const tokenUrl = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
-    const params = {
-      client_id: clientId,
-      scope: scope,
-      client_secret: clientSecret,
-      grant_type: 'client_credentials',
-    };
-
     try {
-      const response = await firstValueFrom(
-        this.httpService.post(tokenUrl, qs.stringify(params), {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        }),
-      );
+      const result = await this.msalClient.acquireTokenByClientCredential({
+        scopes: [this.config.scope],
+      });
 
-      return response.data.access_token;
+      if (!result || !result.accessToken) {
+        throw new HttpException(
+          'Failed to acquire access token',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      return result.accessToken;
     } catch (error) {
       console.error('Error fetching access token from Microsoft', error);
       throw new HttpException(

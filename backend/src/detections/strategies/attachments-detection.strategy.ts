@@ -3,59 +3,50 @@ import { CreateIncidentDto } from 'src/incident/dto/create-incident.dto';
 import { Event } from 'src/events/event.entity';
 import { IncidentSeverity } from 'src/incident/incident.entity';
 import { DetectionStrategy } from './detection-strategy.interface';
+import { DetectionRules } from './detection-rules.config';
 
 @Injectable()
 export class AttachmentDetectionStrategy implements DetectionStrategy {
   private readonly logger = new Logger(AttachmentDetectionStrategy.name);
 
-  private readonly dangerousContentTypes = [
-    'application/x-msdownload', // Executable files
-    'application/x-sh', // Shell scripts
-    'application/x-bat', // Batch files
-    'application/x-python', // Python scripts
-  ];
-
-  private readonly suspiciousFileExtensions = ['exe', 'bat', 'sh', 'js', 'vbs'];
-
-  private readonly maxAttachmentSize = 10 * 1024 * 1024; // 10 MB
-
   async detect(event: Event): Promise<CreateIncidentDto | null> {
     this.logger.log(`Running attachment detection for event ID: ${event.id}`);
 
-    const attachmentData = event.data;
+    const attachment = event.data; // 🔥 Expecting a single attachment per event
 
-    // Check for dangerous content types
-    if (this.dangerousContentTypes.includes(attachmentData.contentType)) {
+    // 🔍 Check for dangerous content types
+    if (DetectionRules.dangerousContentTypes.includes(attachment.contentType)) {
       return {
         title: 'Dangerous Attachment Detected',
-        description: `Attachment "${attachmentData.fileName}" has a dangerous content type: ${attachmentData.contentType}`,
+        description: `Attachment "${attachment.fileName}" has a dangerous content type: ${attachment.contentType}`,
         severity: IncidentSeverity.HIGH,
         relatedEventId: event.id,
       };
     }
 
-    // Check for suspicious file extensions
-    const fileExtension = attachmentData.fileName
-      .split('.')
-      .pop()
-      ?.toLowerCase();
+    // 🔍 Check for suspicious file extensions
+    const fileExtension = attachment.fileName.split('.').pop()?.toLowerCase();
     if (
       fileExtension &&
-      this.suspiciousFileExtensions.includes(fileExtension)
+      DetectionRules.suspiciousFileExtensions.includes(fileExtension)
     ) {
       return {
         title: 'Suspicious File Extension Detected',
-        description: `Attachment "${attachmentData.fileName}" has a suspicious file extension: .${fileExtension}`,
+        description: `Attachment "${attachment.fileName}" has a suspicious file extension: .${fileExtension}`,
         severity: IncidentSeverity.MEDIUM,
         relatedEventId: event.id,
       };
     }
 
-    // Check for large attachment sizes
-    if (attachmentData.size > this.maxAttachmentSize) {
+    // 🔍 Check for large attachment sizes
+    if (attachment.size > DetectionRules.maxAttachmentSize) {
       return {
         title: 'Large Attachment Detected',
-        description: `Attachment "${attachmentData.fileName}" exceeds the size limit (${(this.maxAttachmentSize / 1024 / 1024).toFixed(2)} MB).`,
+        description: `Attachment "${attachment.fileName}" exceeds the size limit of ${(
+          DetectionRules.maxAttachmentSize /
+          1024 /
+          1024
+        ).toFixed(2)} MB.`,
         severity: IncidentSeverity.LOW,
         relatedEventId: event.id,
       };

@@ -1,52 +1,55 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SensorStrategy } from './sensor-strategy.interface';
-import { HttpService } from '@nestjs/axios';
 import { MicrosoftAuthService } from '../../auth/microsoft-auth.service';
-import { firstValueFrom } from 'rxjs';
+import { Client } from '@microsoft/microsoft-graph-client';
 import { EventTypes } from 'src/events/event.entity';
 
 @Injectable()
 export class Office365MailStrategy implements SensorStrategy {
-  constructor(
-    private readonly microsoftAuthService: MicrosoftAuthService,
-    private readonly httpService: HttpService,
-  ) {}
+  private readonly logger = new Logger(Office365MailStrategy.name);
+
+  constructor(private readonly microsoftAuthService: MicrosoftAuthService) {}
+
+  // Initialize Graph Client with the access token
+  private getGraphClient(accessToken: string): Client {
+    return Client.init({
+      authProvider: (done) => {
+        done(null, accessToken); // Pass the token to the client
+      },
+    });
+  }
 
   // Fetch all users from Microsoft Graph
-  private async fetchAllUsers(accessToken: string): Promise<any[]> {
-    const graphUrl = 'https://graph.microsoft.com/v1.0/users';
-
+  private async fetchAllUsers(graphClient: Client): Promise<any[]> {
     try {
-      const response = await firstValueFrom(
-        this.httpService.get(graphUrl, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }),
-      );
-      return response.data.value;
+      const response = await graphClient.api('/users').get();
+      return response.value;
     } catch (error) {
-      console.error('Error fetching users from Microsoft Graph', error.message);
+      this.logger.error('Error fetching users from Microsoft Graph:', error);
       throw new Error('Unable to fetch users from Microsoft Graph');
     }
   }
 
-  // Fetch emails and attachments for a single user
+  // Fetch emails with attachments for a specific user
   private async fetchEmailsWithAttachments(
-    accessToken: string,
+    graphClient: Client,
     userId: string,
   ): Promise<any[]> {
-    console.log(accessToken);
-    const url = `https://graph.microsoft.com/v1.0/users/${userId}/messages?$top=10`;
     try {
-      const response = await firstValueFrom(
-        this.httpService.get(url, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }),
-      );
-      return response.data.value;
+      const response = await graphClient
+        .api(`/users/${userId}/messages`)
+        .expand('attachments')
+        .get();
+
+      return response.value;
     } catch (error) {
-      console.error('Error fetching emails for user:', error.message);
+      if (error.statusCode === 404) {
+        this.logger.warn(
+          `No mailbox found for user: ${userId}. Ensure the user has a provisioned mailbox.`,
+        );
+      } else {
+        this.logger.error('Error fetching emails for user:', error);
+      }
       throw new Error(`Unable to fetch emails for user: ${userId}`);
     }
   }
@@ -57,8 +60,16 @@ export class Office365MailStrategy implements SensorStrategy {
       this.microsoftAuthService.setCustomConfig(config.auth);
     }
 
+    // Get access token
     const accessToken = await this.microsoftAuthService.getAccessToken();
-    const users = await this.fetchAllUsers(accessToken);
+
+    console.log(accessToken);
+
+    // Initialize Graph Client
+    const graphClient = this.getGraphClient(accessToken);
+
+    // Fetch all users
+    const users = await this.fetchAllUsers(graphClient);
 
     console.log(users);
 
@@ -66,12 +77,13 @@ export class Office365MailStrategy implements SensorStrategy {
     for (const user of users) {
       try {
         const emailEvents = await this.fetchEmailsWithAttachments(
-          accessToken,
+          graphClient,
           user.id,
         );
 
         // Separate logical data (emails and attachments)
         emailEvents.forEach((email: any) => {
+          // Add email content event
           events.push({
             type: EventTypes.EmailContent,
             data: {
@@ -81,6 +93,7 @@ export class Office365MailStrategy implements SensorStrategy {
             },
           });
 
+          // Add attachment events (if any)
           if (email.attachments?.length) {
             email.attachments.forEach((attachment: any) => {
               events.push({
@@ -94,7 +107,9 @@ export class Office365MailStrategy implements SensorStrategy {
             });
           }
         });
-      } catch (err) {}
+      } catch (err) {
+        this.logger.error(`Error processing emails for user: ${user.id}`, err);
+      }
     }
 
     return events;
