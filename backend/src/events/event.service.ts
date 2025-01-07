@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Event, EventStatus } from './event.entity';
 
 @Injectable()
@@ -26,6 +26,13 @@ export class EventHandlerService {
 
   async getEventById(id: number): Promise<Event> {
     return this.eventRepository.findOneBy({ id });
+  }
+
+  async deleteOldEvents(date: Date): Promise<number> {
+    const result = await this.eventRepository.delete({
+      timestamp: LessThan(date),
+    });
+    return result.affected || 0;
   }
 
   // async updateEvent(

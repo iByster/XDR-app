@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { Incident } from './incident.entity';
 import { CreateIncidentDto } from './dto/create-incident.dto';
 
@@ -42,5 +42,12 @@ export class IncidentsService {
     return await this.incidentRepository.find({
       relations: ['recommendations'],
     });
+  }
+
+  async deleteOldIncidents(date: Date): Promise<number> {
+    const result = await this.incidentRepository.delete({
+      createdAt: LessThan(date),
+    });
+    return result.affected || 0;
   }
 }
