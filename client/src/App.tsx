@@ -9,6 +9,7 @@ import darkTheme from "./theme";
 import Home from "./pages/home/Home";
 import SensorsPage from "./pages/sensors/Sensors";
 import Navbar from "./components/Navbar";
+import IncidentPage from "./pages/incidents/Incidents";
 
 const App: React.FC = () => {
   return (
@@ -30,6 +31,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/sensors" element={<SensorsPage />} />
+            <Route path="/incidents" element={<IncidentPage />} />
           </Routes>
         </Container>
       </Router>

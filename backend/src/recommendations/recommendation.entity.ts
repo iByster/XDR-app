@@ -24,7 +24,7 @@ export class Recommendation {
   @ManyToOne(() => Incident, (incident) => incident.recommendations, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'incident_id' })
+  @JoinColumn({ name: 'incidentId' })
   incident: Incident;
 
   @Column()
