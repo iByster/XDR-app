@@ -3,6 +3,7 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { EventHandlerService } from 'src/events/event.service';
 import { IncidentsService } from 'src/incident/incident.service';
 import { DetectionStrategyFactory } from './detection-strategy.factory';
+import { RecommendationService } from 'src/recommendations/recommendation.service';
 
 @Injectable()
 export class DetectionService {
@@ -11,6 +12,7 @@ export class DetectionService {
   constructor(
     private readonly eventsService: EventHandlerService,
     private readonly incidentsService: IncidentsService,
+    private readonly recommendationService: RecommendationService,
     private readonly detectionStrategyFactory: DetectionStrategyFactory,
   ) {}
 
@@ -45,12 +47,26 @@ export class DetectionService {
       }
 
       // Execute detection strategy
-      const incident = await strategy.detect(event);
+      const result = await strategy.detect(event);
 
-      // Save the generated incident to Incidents Module
-      if (incident) {
-        await this.incidentsService.createIncident(incident);
-        this.logger.log(`Incident created for event ID ${eventId}`);
+      if (result) {
+        // Save the incident to the Incidents Module
+        const savedIncident = await this.incidentsService.createIncident(
+          result.incident,
+        );
+        this.logger.log(`Incident created with ID ${savedIncident.id}`);
+
+        // Save associated recommendations
+        for (const recommendation of result.recommendations) {
+          await this.recommendationService.createRecommendation({
+            ...recommendation,
+            incidentId: savedIncident.id,
+          });
+        }
+
+        this.logger.log(
+          `Recommendations created for incident ID ${savedIncident.id}`,
+        );
       }
     } catch (error) {
       // Log and handle the error to prevent RabbitMQ from retrying the message

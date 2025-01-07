@@ -1,43 +1,71 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DetectionStrategy } from './detection-strategy.interface';
+import {
+  DetectionStrategy,
+  DetectionResult,
+} from './detection-strategy.interface';
 import { CreateIncidentDto } from 'src/incident/dto/create-incident.dto';
 import { Event } from 'src/events/event.entity';
 import { IncidentSeverity } from 'src/incident/incident.entity';
 import { DetectionRules } from './detection-rules.config';
+import {
+  CreateRecommendationDto,
+  RecommendationSeverity,
+} from 'src/recommendations/dto/create-recommandation.dto';
 
 @Injectable()
 export class EmailContentDetectionStrategy implements DetectionStrategy {
   private readonly logger = new Logger(EmailContentDetectionStrategy.name);
 
-  async detect(event: Event): Promise<CreateIncidentDto | null> {
+  async detect(event: Event): Promise<DetectionResult | null> {
     this.logger.log(`Running email detection for event ID: ${event.id}`);
 
     const emailData = event.data;
     const emailBody = this.extractBodyContent(emailData);
     const emailSubject = emailData.subject.toLowerCase();
+    const recommendations: CreateRecommendationDto[] = [];
 
-    // 🔍 Detect if any keywords from the DetectionRules are in the email subject or body
+    // Detect suspicious keywords
     const hasSuspiciousKeywords = DetectionRules.suspiciousKeywords.some(
       (keyword) =>
         emailBody.includes(keyword) || emailSubject.includes(keyword),
     );
 
     if (hasSuspiciousKeywords) {
+      recommendations.push({
+        title: 'Educate Users on Phishing',
+        description: `Consider providing training to users on recognizing phishing attempts.`,
+        incidentId: null,
+        severity: RecommendationSeverity.HIGH,
+      });
+
       return {
-        title: 'Phishing Attempt Detected',
-        description: `Suspicious content detected in email with subject: "${emailData.subject}"`,
-        severity: IncidentSeverity.HIGH,
-        relatedEventId: event.id,
+        incident: {
+          title: 'Phishing Attempt Detected',
+          description: `Suspicious content detected in email with subject: "${emailData.subject}"`,
+          severity: IncidentSeverity.HIGH,
+          relatedEventId: event.id,
+        },
+        recommendations,
       };
     }
 
-    // 🔍 Detect unauthorized sender
+    // Detect unauthorized sender
     if (!this.isSenderAllowed(emailData.sender.emailAddress.address)) {
+      recommendations.push({
+        title: 'Block Unauthorized Sender',
+        description: `Consider blocking the sender ${emailData.sender.emailAddress.address}.`,
+        incidentId: null,
+        severity: RecommendationSeverity.MEDIUM,
+      });
+
       return {
-        title: 'Unauthorized Sender Detected',
-        description: `Email sent by unauthorized sender: ${emailData.sender.emailAddress.address}`,
-        severity: IncidentSeverity.MEDIUM,
-        relatedEventId: event.id,
+        incident: {
+          title: 'Unauthorized Sender Detected',
+          description: `Email sent by unauthorized sender: ${emailData.sender.emailAddress.address}`,
+          severity: IncidentSeverity.MEDIUM,
+          relatedEventId: event.id,
+        },
+        recommendations,
       };
     }
 

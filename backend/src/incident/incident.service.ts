@@ -37,4 +37,10 @@ export class IncidentsService {
   async deleteIncident(id: number): Promise<void> {
     await this.incidentRepository.delete(id);
   }
+
+  async getAllIncidentsWithRecommendations(): Promise<Incident[]> {
+    return await this.incidentRepository.find({
+      relations: ['recommendations'],
+    });
+  }
 }

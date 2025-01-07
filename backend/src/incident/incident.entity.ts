@@ -1,4 +1,5 @@
 // import { Recommendation } from 'src/recommendations/recommendation.entity';
+import { Recommendation } from 'src/recommendations/recommendation.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -42,6 +43,6 @@ export class Incident {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // @OneToMany(() => Recommendation, (recommendation) => recommendation.incident)
-  // recommendations: Recommendation[];
+  @OneToMany(() => Recommendation, (recommendation) => recommendation.incident)
+  recommendations: Recommendation[];
 }
