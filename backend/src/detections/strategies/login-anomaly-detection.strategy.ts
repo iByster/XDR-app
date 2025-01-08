@@ -82,6 +82,6 @@ export class LoginAnomalyDetectionStrategy implements DetectionStrategy {
 
   private isAnomalousTime(timestamp: string, averageTime: string): boolean {
     // Logic to compare times and check if the login time is outside the normal range
-    return true; // Simplified for this example
+    return true;
   }
 }

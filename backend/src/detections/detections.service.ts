@@ -28,7 +28,6 @@ export class DetectionService {
     const { eventId, eventType } = msg;
 
     try {
-      // Retrieve event details from Events Module
       const event = await this.eventsService.getEventById(eventId);
 
       if (!event) {
@@ -36,7 +35,6 @@ export class DetectionService {
         return;
       }
 
-      // Dynamically resolve detection strategy based on eventType
       const strategy = this.detectionStrategyFactory.getStrategy(event.type);
 
       if (!strategy) {
@@ -50,7 +48,6 @@ export class DetectionService {
       const result = await strategy.detect(event);
 
       if (result) {
-        // Save the incident to the Incidents Module
         const savedIncident = await this.incidentsService.createIncident(
           result.incident,
         );
@@ -69,7 +66,6 @@ export class DetectionService {
         );
       }
     } catch (error) {
-      // Log and handle the error to prevent RabbitMQ from retrying the message
       this.logger.error(`Error handling alert: ${error.message}`);
     }
   }

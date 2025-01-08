@@ -19,7 +19,7 @@ export class AttachmentDetectionStrategy implements DetectionStrategy {
   async detect(event: Event): Promise<DetectionResult | null> {
     this.logger.log(`Running attachment detection for event ID: ${event.id}`);
 
-    const attachment = event.data; // Expecting a single attachment per event
+    const attachment = event.data;
     const recommendations: CreateRecommendationDto[] = [];
 
     // Check for dangerous content types

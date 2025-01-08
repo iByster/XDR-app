@@ -14,7 +14,7 @@ export class Office365MailStrategy implements SensorStrategy {
   private getGraphClient(accessToken: string): Client {
     return Client.init({
       authProvider: (done) => {
-        done(null, accessToken); // Pass the token to the client
+        done(null, accessToken);
       },
     });
   }
@@ -81,7 +81,6 @@ export class Office365MailStrategy implements SensorStrategy {
           user.id,
         );
 
-        // Separate logical data (emails and attachments)
         emailEvents.forEach((email: any) => {
           // Add email content event
           events.push({
