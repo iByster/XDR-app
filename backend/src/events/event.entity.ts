@@ -1,8 +1,10 @@
+import { Alert } from 'src/alerts/alert.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 export enum EventStatus {

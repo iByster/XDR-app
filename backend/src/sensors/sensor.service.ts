@@ -89,7 +89,7 @@ export class SensorsService {
       where: {
         isRunning: false,
         enabled: true,
-        // lastExecutionTime: LessThanOrEqual(SENSOR_COOLDOWN),
+        lastExecutionTime: LessThanOrEqual(SENSOR_COOLDOWN),
       },
       order: { lastExecutionTime: 'ASC' },
       take: limit,

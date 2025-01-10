@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Sensor } from '../sensors/sensor.entity';
 import { Incident } from 'src/incident/incident.entity';
 import { Recommendation } from 'src/recommendations/recommendation.entity';
+import { Alert } from 'src/alerts/alert.entity';
 
 @Module({
   imports: [
@@ -14,11 +15,11 @@ import { Recommendation } from 'src/recommendations/recommendation.entity';
       username: process.env.MAIN_DB_USERNAME,
       password: process.env.MAIN_DB_PASSWORD,
       database: process.env.MAIN_DB_NAME,
-      entities: [Sensor, Incident, Recommendation],
+      entities: [Sensor, Incident, Recommendation, Alert],
       synchronize: true,
     }),
     TypeOrmModule.forFeature(
-      [Sensor, Incident, Recommendation],
+      [Sensor, Incident, Recommendation, Alert],
       'mainConnection',
     ),
   ],

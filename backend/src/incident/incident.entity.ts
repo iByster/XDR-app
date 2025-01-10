@@ -1,4 +1,3 @@
-// import { Recommendation } from 'src/recommendations/recommendation.entity';
 import { Recommendation } from 'src/recommendations/recommendation.entity';
 import {
   Entity,

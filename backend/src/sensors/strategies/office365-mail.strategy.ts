@@ -63,15 +63,11 @@ export class Office365MailStrategy implements SensorStrategy {
     // Get access token
     const accessToken = await this.microsoftAuthService.getAccessToken();
 
-    console.log(accessToken);
-
     // Initialize Graph Client
     const graphClient = this.getGraphClient(accessToken);
 
     // Fetch all users
     const users = await this.fetchAllUsers(graphClient);
-
-    console.log(users);
 
     const events: any[] = [];
     for (const user of users) {
