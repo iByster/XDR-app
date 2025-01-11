@@ -81,7 +81,7 @@ export class SensorsService {
     this.sensorContext.setStrategy(sensor.sensorType);
 
     // Process the sensor using its configuration
-    return this.sensorContext.process(sensor.config);
+    return this.sensorContext.process(sensor.config, sensor.lastExecutionTime);
   }
 
   async getAllAvailableSensors(limit = 5): Promise<Sensor[]> {
@@ -89,7 +89,7 @@ export class SensorsService {
       where: {
         isRunning: false,
         enabled: true,
-        lastExecutionTime: LessThanOrEqual(SENSOR_COOLDOWN),
+        // lastExecutionTime: LessThanOrEqual(SENSOR_COOLDOWN),
       },
       order: { lastExecutionTime: 'ASC' },
       take: limit,

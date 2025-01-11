@@ -55,7 +55,7 @@ export class Office365MailStrategy implements SensorStrategy {
   }
 
   // Process sensor to fetch and organize email events
-  async process(config: any): Promise<any[]> {
+  async process(config: any, lastExecutionTime: Date): Promise<any[]> {
     if (config.auth) {
       this.microsoftAuthService.setCustomConfig(config.auth);
     }
@@ -84,7 +84,10 @@ export class Office365MailStrategy implements SensorStrategy {
             data: {
               subject: email.subject,
               sender: email.from,
-              receiver: [...email.toRecipients, ...email.ccRecipients],
+              receiver: [
+                ...email.toRecipients,
+                ...(email?.ccRecipients ? email.ccRecipients : []),
+              ],
               body: email.bodyPreview,
             },
           });
@@ -95,11 +98,14 @@ export class Office365MailStrategy implements SensorStrategy {
               events.push({
                 type: EventTypes.EmailAttachments,
                 data: {
-                  fileName: attachment.name,
-                  contentType: attachment.contentType,
-                  size: attachment.size,
-                  sender: email.from,
-                  receiver: [...email.toRecipients, ...email.ccRecipients],
+                  fileName: attachment?.name,
+                  contentType: attachment?.contentType,
+                  size: attachment?.size,
+                  sender: email?.from,
+                  receiver: [
+                    ...email?.toRecipients,
+                    ...(email?.ccRecipients ? email.ccRecipients : []),
+                  ],
                 },
               });
             });

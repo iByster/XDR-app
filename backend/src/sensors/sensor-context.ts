@@ -31,7 +31,7 @@ export class SensorContext {
     }
   }
 
-  async process(config: any): Promise<any> {
-    return this.strategy.process(config);
+  async process(config: any, lastExecutionTime: Date): Promise<any> {
+    return this.strategy.process(config, lastExecutionTime);
   }
 }

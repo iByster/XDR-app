@@ -29,7 +29,7 @@ export class AttachmentDetectionStrategy implements DetectionStrategy {
         data: {
           attacker: attachment.sender?.emailAddress?.address || '',
           defender:
-            attachment.toRecipients
+            attachment.receiver
               ?.map((recipient: any) => recipient.emailAddress?.address)
               .join(', ') || '',
         },

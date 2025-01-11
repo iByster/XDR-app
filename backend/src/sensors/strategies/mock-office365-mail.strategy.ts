@@ -32,10 +32,13 @@ export class MockOffice365MailStrategy implements SensorStrategy {
       events.push({
         type: EventTypes.EmailContent,
         data: {
-          subject: email.subject,
-          sender: email.from,
-          receiver: [...email.toRecipients, ...email.ccRecipients],
-          body: email.bodyPreview,
+          subject: email?.subject,
+          sender: email?.from,
+          receiver: [
+            ...email?.toRecipients,
+            ...(email?.ccRecipients ? email.ccRecipients : []),
+          ],
+          body: email?.bodyPreview,
         },
       });
 
@@ -45,11 +48,14 @@ export class MockOffice365MailStrategy implements SensorStrategy {
           events.push({
             type: EventTypes.EmailAttachments,
             data: {
-              fileName: attachment.name,
-              contentType: attachment.contentType,
-              size: attachment.size,
-              sender: email.from,
-              receiver: [...email.toRecipients, ...email.ccRecipients],
+              fileName: attachment?.name,
+              contentType: attachment?.contentType,
+              size: attachment?.size,
+              sender: email?.from,
+              receiver: [
+                ...email?.toRecipients,
+                ...(email?.ccRecipients ? email.ccRecipients : []),
+              ],
             },
           });
         });

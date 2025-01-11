@@ -32,7 +32,7 @@ export class EmailContentDetectionStrategy implements DetectionStrategy {
         data: {
           attacker: emailData.sender?.emailAddress?.address || '',
           defender:
-            emailData.toRecipients
+            emailData.receiver
               ?.map((recipient: any) => recipient.emailAddress?.address)
               .join(', ') || '',
         },

@@ -1,3 +1,3 @@
 export interface SensorStrategy {
-  process(config: any): Promise<any>;
+  process(config: any, lastExecutionTime: Date): Promise<any>;
 }
