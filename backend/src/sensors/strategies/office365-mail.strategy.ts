@@ -84,6 +84,7 @@ export class Office365MailStrategy implements SensorStrategy {
             data: {
               subject: email.subject,
               sender: email.from,
+              receiver: [...email.toRecipients, ...email.ccRecipients],
               body: email.bodyPreview,
             },
           });
@@ -97,6 +98,8 @@ export class Office365MailStrategy implements SensorStrategy {
                   fileName: attachment.name,
                   contentType: attachment.contentType,
                   size: attachment.size,
+                  sender: email.from,
+                  receiver: [...email.toRecipients, ...email.ccRecipients],
                 },
               });
             });

@@ -38,9 +38,9 @@ export class IncidentsService {
     await this.incidentRepository.delete(id);
   }
 
-  async getAllIncidentsWithRecommendations(): Promise<Incident[]> {
+  async getAllFullIncidents(): Promise<Incident[]> {
     return await this.incidentRepository.find({
-      relations: ['recommendations'],
+      relations: ['recommendations', 'alerts', 'actors', 'resources'],
     });
   }
 
@@ -49,5 +49,9 @@ export class IncidentsService {
       createdAt: LessThan(date),
     });
     return result.affected || 0;
+  }
+
+  async findIncidentByHash(hash: string): Promise<Incident | null> {
+    return this.incidentRepository.findOne({ where: { hash } });
   }
 }

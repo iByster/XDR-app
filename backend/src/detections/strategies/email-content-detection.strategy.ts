@@ -3,14 +3,15 @@ import {
   DetectionStrategy,
   DetectionResult,
 } from './detection-strategy.interface';
-import { CreateIncidentDto } from 'src/incident/dto/create-incident.dto';
 import { Event } from 'src/events/event.entity';
-import { IncidentSeverity } from 'src/incident/incident.entity';
 import { DetectionRules } from './detection-rules.config';
 import {
   CreateRecommendationDto,
   RecommendationSeverity,
 } from 'src/recommendations/dto/create-recommandation.dto';
+import { CreateActorDto } from 'src/actors/dto/create-actor.dto';
+import { CreateResourceDto } from 'src/resources/dto/create-resource.dto';
+import { AlertSeverity } from 'src/alerts/alert.entity';
 
 @Injectable()
 export class EmailContentDetectionStrategy implements DetectionStrategy {
@@ -24,6 +25,30 @@ export class EmailContentDetectionStrategy implements DetectionStrategy {
     const emailSubject = emailData.subject.toLowerCase();
     const recommendations: CreateRecommendationDto[] = [];
 
+    // Extract Actors
+    const actors: CreateActorDto[] = [
+      {
+        type: 'email',
+        data: {
+          attacker: emailData.sender?.emailAddress?.address || '',
+          defender:
+            emailData.toRecipients
+              ?.map((recipient: any) => recipient.emailAddress?.address)
+              .join(', ') || '',
+        },
+        eventId: event.id,
+      },
+    ];
+
+    // Extract Resource (Email Content)
+    const resources: CreateResourceDto[] = [
+      {
+        type: 'email-content',
+        data: { emailBody, emailSubject },
+        eventId: event.id,
+      },
+    ];
+
     // Detect suspicious keywords
     const hasSuspiciousKeywords = DetectionRules.suspiciousKeywords.some(
       (keyword) =>
@@ -34,18 +59,19 @@ export class EmailContentDetectionStrategy implements DetectionStrategy {
       recommendations.push({
         title: 'Educate Users on Phishing',
         description: `Consider providing training to users on recognizing phishing attempts.`,
-        incidentId: null,
         severity: RecommendationSeverity.HIGH,
       });
 
       return {
-        incident: {
+        alert: {
           title: 'Phishing Attempt Detected',
           description: `Suspicious content detected in email with subject: "${emailData.subject}"`,
-          severity: IncidentSeverity.HIGH,
-          relatedEventId: event.id,
+          severity: AlertSeverity.HIGH,
+          eventId: event.id,
         },
         recommendations,
+        actors,
+        resources,
       };
     }
 
@@ -54,18 +80,19 @@ export class EmailContentDetectionStrategy implements DetectionStrategy {
       recommendations.push({
         title: 'Block Unauthorized Sender',
         description: `Consider blocking the sender ${emailData.sender.emailAddress.address}.`,
-        incidentId: null,
         severity: RecommendationSeverity.MEDIUM,
       });
 
       return {
-        incident: {
+        alert: {
           title: 'Unauthorized Sender Detected',
           description: `Email sent by unauthorized sender: ${emailData.sender.emailAddress.address}`,
-          severity: IncidentSeverity.MEDIUM,
-          relatedEventId: event.id,
+          severity: AlertSeverity.MEDIUM,
+          eventId: event.id,
         },
         recommendations,
+        actors,
+        resources,
       };
     }
 

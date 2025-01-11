@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, IsEnum, IsNumber, Min } from 'class-validator';
-import { IncidentSeverity } from '../incident.entity';
+import { AlertSeverity } from '../alert.entity';
 
-export class CreateIncidentDto {
+export class CreateAlertDto {
   @IsString()
   @IsNotEmpty()
   title: string;
@@ -10,13 +10,10 @@ export class CreateIncidentDto {
   @IsNotEmpty()
   description: string;
 
-  @IsEnum(IncidentSeverity)
-  severity: IncidentSeverity;
+  @IsEnum(AlertSeverity)
+  severity: AlertSeverity;
 
   @IsNumber()
   @Min(1)
   eventId: number;
-
-  @IsString()
-  hash: string;
 }

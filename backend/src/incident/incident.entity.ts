@@ -1,4 +1,7 @@
+import { Actor } from 'src/actors/actor.entity';
+import { Alert } from 'src/alerts/alert.entity';
 import { Recommendation } from 'src/recommendations/recommendation.entity';
+import { Resource } from 'src/resources/resource.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -33,15 +36,30 @@ export class Incident {
   })
   severity: IncidentSeverity;
 
-  @Column()
-  relatedEventId: number;
+  // @Column()
+  // eventId: number;
+
+  @Column({ unique: true })
+  hash: string; // Unique hash to ensure incident uniqueness
+
+  @OneToMany(() => Recommendation, (recommendation) => recommendation.incident)
+  recommendations: Recommendation[];
+
+  // Relationship with Alerts
+  @OneToMany(() => Alert, (alert) => alert.incident, { cascade: true })
+  alerts: Alert[];
+
+  // Relationship with Actors
+  @OneToMany(() => Actor, (actor) => actor.incident, { cascade: true })
+  actors: Actor[];
+
+  // Relationship with Resources
+  @OneToMany(() => Resource, (resource) => resource.incident, { cascade: true })
+  resources: Resource[];
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @OneToMany(() => Recommendation, (recommendation) => recommendation.incident)
-  recommendations: Recommendation[];
 }

@@ -3,14 +3,15 @@ import {
   DetectionStrategy,
   DetectionResult,
 } from './detection-strategy.interface';
-import { CreateIncidentDto } from 'src/incident/dto/create-incident.dto';
 import { Event } from 'src/events/event.entity';
-import { IncidentSeverity } from 'src/incident/incident.entity';
 import { DetectionRules } from './detection-rules.config';
 import {
   CreateRecommendationDto,
   RecommendationSeverity,
 } from 'src/recommendations/dto/create-recommandation.dto';
+import { CreateActorDto } from 'src/actors/dto/create-actor.dto';
+import { CreateResourceDto } from 'src/resources/dto/create-resource.dto';
+import { AlertSeverity } from 'src/alerts/alert.entity';
 
 @Injectable()
 export class AttachmentDetectionStrategy implements DetectionStrategy {
@@ -22,6 +23,28 @@ export class AttachmentDetectionStrategy implements DetectionStrategy {
     const attachment = event.data;
     const recommendations: CreateRecommendationDto[] = [];
 
+    const actors: CreateActorDto[] = [
+      {
+        type: 'email',
+        data: {
+          attacker: attachment.sender?.emailAddress?.address || '',
+          defender:
+            attachment.toRecipients
+              ?.map((recipient: any) => recipient.emailAddress?.address)
+              .join(', ') || '',
+        },
+        eventId: event.id,
+      },
+    ];
+
+    const resources: CreateResourceDto[] = [
+      {
+        type: 'attachment',
+        data: attachment,
+        eventId: event.id,
+      },
+    ];
+
     // Check for dangerous content types
     if (DetectionRules.dangerousContentTypes.includes(attachment.contentType)) {
       recommendations.push({
@@ -31,13 +54,15 @@ export class AttachmentDetectionStrategy implements DetectionStrategy {
       });
 
       return {
-        incident: {
+        alert: {
           title: 'Dangerous Attachment Detected',
           description: `Attachment "${attachment.fileName}" has a dangerous content type: ${attachment.contentType}`,
-          severity: IncidentSeverity.HIGH,
-          relatedEventId: event.id,
+          severity: AlertSeverity.HIGH,
+          eventId: event.id,
         },
         recommendations,
+        actors,
+        resources,
       };
     }
 
@@ -54,13 +79,15 @@ export class AttachmentDetectionStrategy implements DetectionStrategy {
       });
 
       return {
-        incident: {
+        alert: {
           title: 'Suspicious File Extension Detected',
           description: `Attachment "${attachment.fileName}" has a suspicious file extension: .${fileExtension}`,
-          severity: IncidentSeverity.MEDIUM,
-          relatedEventId: event.id,
+          severity: AlertSeverity.MEDIUM,
+          eventId: event.id,
         },
         recommendations,
+        actors,
+        resources,
       };
     }
 
@@ -74,13 +101,15 @@ export class AttachmentDetectionStrategy implements DetectionStrategy {
       });
 
       return {
-        incident: {
+        alert: {
           title: 'Large Attachment Detected',
           description: `Attachment "${attachment.fileName}" exceeds the size limit of ${(DetectionRules.maxAttachmentSize / 1024 / 1024).toFixed(2)} MB.`,
-          severity: IncidentSeverity.LOW,
-          relatedEventId: event.id,
+          severity: AlertSeverity.LOW,
+          eventId: event.id,
         },
         recommendations,
+        actors,
+        resources,
       };
     }
 

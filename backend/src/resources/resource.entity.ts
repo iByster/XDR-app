@@ -1,9 +1,12 @@
+import { Incident } from 'src/incident/incident.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('resources')
@@ -14,11 +17,15 @@ export class Resource {
   @Column()
   type: string;
 
-  @Column()
-  value: string;
+  @Column({ type: 'json' })
+  data: any;
 
   @Column()
   eventId: number;
+
+  @JoinColumn({ name: 'incidentId' })
+  @ManyToOne(() => Incident, (incident) => incident.resources)
+  incident: Incident;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -7,6 +7,6 @@ export class IncidentsController {
 
   @Get()
   async getAllIncidents() {
-    return await this.incidentsService.getAllIncidentsWithRecommendations();
+    return await this.incidentsService.getAllFullIncidents();
   }
 }
